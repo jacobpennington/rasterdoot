@@ -17,7 +17,7 @@ sorted_indices= np.argsort(model.embedding[:,0])
 sorted_data = data[sorted_indices]
 
 # Convert the array data into a sheet-music-like interpretation
-sheet = make_music(sorted_data, **options_tbd)
+sheet = make_music(sorted_data, ms_per_bin=10)
 
 # Generate a sound file (probably .wav) from the sheet music for a selected
 # instrument. Want to support oscilloscope, trumpet, percussion... others.
