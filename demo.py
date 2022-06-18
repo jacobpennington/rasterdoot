@@ -2,23 +2,25 @@
 # to do eventually.
 
 import numpy as np
-from rastermap import mapping
+from sklearn.manifold import TSNE
+
+from .music import dootify
 
 # Assume user has loaded some data, formatted as a
 # 2D time x neurons numpy array.
 # (originally just had spiking in mind, but could also be non-binary and use
 #  value to control amplitude)
-data = np.load('my_data.npy')
+data = np.random.choice([0,1], size=(10000,100), p=[0.95, 0.05])
 
-# Sort neurons using tSNE, rastermap etc (optional, use 3rd party)
-# (I think this is the basic workflow for Rastermap but not tested)
-model = mapping.Rastermap(n_components=1, n_Y=100).fit(data)
-sorted_indices= np.argsort(model.embedding[:,0])
+# Sort neurons using tSNE (optional, use 3rd party)
+# TODO: double check this. With random data was hard to tell
+#       if it's actually working as intended.
+model = TSNE(n_components=2, learning_rate='auto', init='random')
+embedded_data = model.fit_transform(data)
+sorted_indices = np.argsort(embedded_data, axis=0).flatten()
 sorted_data = data[sorted_indices]
-
-# Convert the array data into a sheet-music-like interpretation
-sheet = make_music(sorted_data, ms_per_bin=10)
 
 # Generate a sound file (probably .wav) from the sheet music for a selected
 # instrument. Want to support oscilloscope, trumpet, percussion... others.
-wav = dootify(sheet, instrument='oscilloscope')
+wav = dootify(sorted_data, ms_per_bin=10, interpolate=True,
+              instrument='oscilloscope')
