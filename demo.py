@@ -1,26 +1,38 @@
 # Not working yet, but this script sketches out what the package is intended
 # to do eventually.
+from pathlib import Path
+# import sys
+# sys.path.append('C:/code/rasterdoot')  # TODO: set up actual install, remove this
 
 import numpy as np
 from sklearn.manifold import TSNE
 
-from .music import dootify
+# Set paths to MuseScore (or other program) and directory where midis will
+# be stored
+from music21 import environment
+us = environment.UserSettings()
+us['musicxmlPath'] = 'C:/Program Files/MuseScore 3/bin/MuseScore3.exe'
+us['musescoreDirectPNGPath'] = 'C:/Program Files/MuseScore 3/bin/MuseScore3.exe'
+midi_dir = Path('C:/code/midis/')
+
+# TODO; set up installation 
+from rasterdoot.music import dootify
 
 # Assume user has loaded some data, formatted as a
-# 2D time x neurons numpy array.
+# 2D numpy array with shape (N neurons, T time bins).
 # (originally just had spiking in mind, but could also be non-binary and use
 #  value to control amplitude)
-data = np.random.choice([0,1], size=(10000,100), p=[0.95, 0.05])
+data = np.random.choice([0,1], size=(32,10000), p=[0.95, 0.05])
 
 # Sort neurons using tSNE (optional, use 3rd party)
 # TODO: double check this. With random data was hard to tell
 #       if it's actually working as intended.
-model = TSNE(n_components=2, learning_rate='auto', init='random')
+# TODO: wrong shape? gettign 200, instead of 100,
+model = TSNE(n_components=1, learning_rate='auto', init='random')
 embedded_data = model.fit_transform(data)
-sorted_indices = np.argsort(embedded_data, axis=0).flatten()
+sorted_indices = np.argsort(embedded_data, axis=1).flatten()
 sorted_data = data[sorted_indices]
 
-# Generate a sound file (probably .wav) from the sheet music for a selected
-# instrument. Want to support oscilloscope, trumpet, percussion... others.
-wav = dootify(sorted_data, ms_per_bin=10, interpolate=True,
-              instrument='oscilloscope')
+stream = dootify(sorted_data, ms_per_bin=10, interpolate=True,
+                  instrument='oscilloscope')
+stream.show('midi')
