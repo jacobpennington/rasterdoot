@@ -16,7 +16,7 @@ us['musescoreDirectPNGPath'] = 'C:/Program Files/MuseScore 3/bin/MuseScore3.exe'
 midi_dir = Path('C:/code/midis/')
 
 # TODO; set up installation 
-from rasterdoot.music import dootify
+from rasterdoot.music import dootify, multi_doot
 
 # Assume user has loaded some data, formatted as a
 # 2D numpy array with shape (N neurons, T time bins).
@@ -27,21 +27,30 @@ from rasterdoot.music import dootify
 with np.load("C:/code/lbhb_data/flat.npz") as f:
     data = f['response']
 # Select subset of time points, first 32 neurons
-data = data[:10000, :32].T  # flip time and neuron axis
+data = data[:1000, :6].T  # flip time and neuron axis
 
 # Sort neurons using tSNE (optional, use 3rd party)
 # TODO: double check this. With random data was hard to tell
 #       if it's actually working as intended.
 # TODO: wrong shape? gettign 200, instead of 100,
-model = TSNE(n_components=1, learning_rate='auto', init='random')
-embedded_data = model.fit_transform(data)
-sorted_indices = np.argsort(embedded_data, axis=1).flatten()
-sorted_data = data[sorted_indices]
+# model = TSNE(n_components=1, learning_rate='auto', init='random')
+# embedded_data = model.fit_transform(data)
+# sorted_indices = np.argsort(embedded_data, axis=1).flatten()
+# sorted_data = data[sorted_indices]
 
-stream = dootify(sorted_data, ms_per_bin=10, interpolate=True,
-                 instrument='BongoDrums')
+# List of instruments:
+# https://web.mit.edu/music21/doc/moduleReference/moduleInstrument.html
+# stream = dootify(data, ms_per_bin=100, instrument='Piano')  # single instrument
+instrument_list = ['Piano', 'Viola', 'Violoncello', 'Tambourine', 'Guitar',
+                   'Saxophone']
+stream = multi_doot(
+    {instrument: data[i:i+1, ...] for i, instrument in enumerate(instrument_list)},
+    ms_per_bin=100
+)
+
+# TODO: This method is the major speed bottleneck at the moment. Any way to show
+#       a progress bar for this? Would have to be through the musci21 library.
 stream.show('midi')
-
 
 # TODO: with real data, even 32 neurons ends up being a rapid-fire mess.
 #       need to artificially separate the spikes somehow? the multiple instruments
