@@ -1,11 +1,12 @@
 import numpy as np
+import music21
 from music21.note import Note
 from music21.scale import MajorScale
 from music21.stream import Stream
 
 
 def dootify(data, ms_per_bin, spike_times=False, interpolate=True,
-            instrument='oscilloscope', min_octave=2, max_octave=8):
+            instrument='Piano', min_octave=2, max_octave=8):
 
     if spike_times:
         spike_times_in_seconds = data
@@ -44,8 +45,16 @@ def dootify(data, ms_per_bin, spike_times=False, interpolate=True,
 
     # TODO: Incorporate instrument choices somehow?
 
-    # Create Stream, all notes for one neuron same pitch
+    # Create Stream, 
     stream = Stream()
+    if isinstance(instrument, str):
+        # Replace string with Instrument instance.
+        instrument = getattr(music21.instrument, instrument, None)()
+    if instrument is None:
+        raise ValueError(f'Unrecognized instrument name: {instrument}.')
+    stream.insert(0, instrument)
+    
+    # Add notes, all notes for one neuron same pitch.
     for times, pitch in zip(spike_times_in_seconds, pitch_map):
         # Round to 1/100th of a second, toss duplicated spike times
         times = set([round(t,1) for t in times])
