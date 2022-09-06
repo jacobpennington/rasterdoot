@@ -40,7 +40,7 @@ def dootify(data, ms_per_bin, spike_times=False, interpolate=True,
     else:
         notes_needed, _ = data.shape
         spike_times_in_seconds = [
-            data[i].nonzero()[0] * (ms_per_bin/1000)
+            data[i].nonzero()[0] * (1000/ms_per_bin)
             for i in range(notes_needed)
             ]
 

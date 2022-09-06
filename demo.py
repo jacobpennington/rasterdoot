@@ -45,7 +45,7 @@ instrument_list = ['Piano', 'Viola', 'Violoncello', 'Tambourine', 'Guitar',
                    'Saxophone']
 stream = multi_doot(
     {instrument: data[i:i+1, ...] for i, instrument in enumerate(instrument_list)},
-    ms_per_bin=100
+    ms_per_bin=10
 )
 
 # TODO: This method is the major speed bottleneck at the moment. Any way to show
