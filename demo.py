@@ -22,7 +22,7 @@ from rasterdoot.music import dootify, multi_doot
 # 2D numpy array with shape (N neurons, T time bins).
 # (originally just had spiking in mind, but could also be non-binary and use
 #  value to control amplitude)
-#data = np.random.choice([0,1], size=(32,10000), p=[0.95, 0.05])
+# data = np.random.choice([0,1], size=(32,10000), p=[0.95, 0.05])
 
 with np.load("C:/code/lbhb_data/flat.npz") as f:
     data = f['response']
@@ -45,7 +45,7 @@ instrument_list = ['Piano', 'Viola', 'Violoncello', 'Tambourine', 'Guitar',
                    'Saxophone']
 stream = multi_doot(
     {instrument: data[i:i+1, ...] for i, instrument in enumerate(instrument_list)},
-    ms_per_bin=10
+    data_type='continuous', ms_per_bin=100
 )
 
 # TODO: This method is the major speed bottleneck at the moment. Any way to show
@@ -55,3 +55,6 @@ stream.show('midi')
 # TODO: with real data, even 32 neurons ends up being a rapid-fire mess.
 #       need to artificially separate the spikes somehow? the multiple instruments
 #       idea would help, but then there's still 40-80 neurons per site in this data.
+
+
+stream.write('midi', fp='C:/code/midi_test.midi')
